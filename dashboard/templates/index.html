@@ -909,7 +909,7 @@
         let countdown = 30;
         const refreshBadge = document.getElementById('refreshBadge');
         
-        setInterval(() => {
+        const refreshInterval = setInterval(() => {
             const searchInput = document.getElementById('searchInput');
             const modal = document.getElementById('emailModal');
             const isTyping = document.activeElement === searchInput || searchInput.value.trim() !== '';
@@ -924,6 +924,7 @@
             countdown--;
             if (countdown <= 0) {
                 refreshBadge.innerText = 'Refreshing...';
+                clearInterval(refreshInterval);
                 window.location.reload();
             } else {
                 refreshBadge.innerText = `Refreshes in ${countdown}s`;
