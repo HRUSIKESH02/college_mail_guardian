@@ -47,6 +47,23 @@ def fetch_unread_emails():
         emails_data = []
         for msg in messages:
             msg_data = service.users().messages().get(userId="me", id=msg["id"], format="raw").execute()
+            
+            # Filter out old emails based on internalDate
+            internal_date_ms = int(msg_data.get("internalDate", 0))
+            if internal_date_ms:
+                from datetime import datetime, timezone
+                msg_date = datetime.fromtimestamp(internal_date_ms / 1000.0, tz=timezone.utc)
+                try:
+                    cutoff = datetime.fromisoformat(settings.start_time.replace("Z", "+00:00"))
+                except Exception:
+                    cutoff = datetime(2026, 6, 26, 9, 0, 0, tzinfo=timezone.utc)
+                
+                if msg_date < cutoff:
+                    print(f"Skipping old email (received {msg_date} before cutoff {cutoff})")
+                    # Mark as read in Gmail so it doesn't get fetched again
+                    service.users().messages().modify(userId="me", id=msg["id"], body={"removeLabelIds": ["UNREAD"]}).execute()
+                    continue
+            
             mime_msg = email.message_from_bytes(base64.urlsafe_b64decode(msg_data["raw"]))
             
             sender = decode_mime_header(mime_msg["From"])

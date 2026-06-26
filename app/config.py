@@ -15,5 +15,6 @@ class Settings(BaseSettings):
     twilio_whatsapp_number: str = os.getenv("TWILIO_WHATSAPP_NUMBER")
     your_whatsapp_number: str = os.getenv("YOUR_WHATSAPP_NUMBER")
     college_domains: str = os.getenv("COLLEGE_DOMAINS", "")
+    start_time: str = os.getenv("START_TIME", "2026-06-26T09:00:00Z")
 
 settings = Settings()
