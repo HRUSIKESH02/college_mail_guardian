@@ -59,6 +59,12 @@ def process_emails():
             
             ai_result = classify_email(e)
             
+            # If the sender is explicitly whitelisted in database, do not ignore their emails.
+            if is_db_whitelisted and ai_result["priority"] == "IGNORE":
+                ai_result["priority"] = "NORMAL"
+                if not ai_result.get("summary") or ai_result["summary"] == "Could not summarize.":
+                    ai_result["summary"] = "Bypassed IGNORE filter because sender is whitelisted."
+            
             if ai_result["priority"] == "IGNORE":
                 mark_email_read(e["message_id"])
                 continue

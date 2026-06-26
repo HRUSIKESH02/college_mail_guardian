@@ -33,8 +33,11 @@ def check_all_unread():
                 elif h["name"] == "Date":
                     date = h["value"]
                     
-            print(f"{idx+1}. From: {sender}")
-            print(f"   Subject: {subject}")
+            # Print safely to console by encoding/decoding or setting sys.stdout to utf-8 encoding
+            safe_sender = sender.encode('utf-8', errors='replace').decode(sys.stdout.encoding, errors='replace')
+            safe_subject = subject.encode('utf-8', errors='replace').decode(sys.stdout.encoding, errors='replace')
+            print(f"{idx+1}. From: {safe_sender}")
+            print(f"   Subject: {safe_subject}")
             print(f"   Date: {date}")
             print("-" * 60)
             
