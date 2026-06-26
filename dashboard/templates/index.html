@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Mail Guardian</title>
+    <!-- Outfit Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(22, 28, 45, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --critical: #ef4444;
+            --important: #f59e0b;
+            --normal: #3b82f6;
+            --success: #10b981;
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 30px;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo-section h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-section p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--success);
+        }
+
+        .refresh-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Stats Row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 10px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .stat-value span {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Filter and Search Section */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: rgba(22, 28, 45, 0.4);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-muted);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .search-container {
+            position: relative;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(15, 17, 26, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Main Grid/Sidebar Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 30px;
+            align-items: start;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(12px);
+        }
+
+        .sidebar-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .add-sender-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .add-sender-form input {
+            flex-grow: 1;
+            background: rgba(15, 17, 26, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .add-sender-form input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: var(--text-main);
+            border-color: var(--primary);
+            padding: 8px 16px;
+        }
+
+        .btn-add:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .whitelist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .no-senders {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 20px 10px;
+            border: 1px dashed var(--card-border);
+            border-radius: 8px;
+        }
+
+        .whitelist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 17, 26, 0.4);
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .whitelist-item:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .whitelist-val {
+            color: var(--text-main);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+
+        .delete-icon {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .delete-icon:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        /* Email Grid Layout */
+        .email-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .email-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .email-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .priority-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+
+        .priority-indicator.critical { background: var(--critical); box-shadow: 0 0 10px var(--critical); }
+        .priority-indicator.important { background: var(--important); box-shadow: 0 0 10px var(--important); }
+        .priority-indicator.normal { background: var(--normal); }
+        .priority-indicator.ignore { background: var(--text-muted); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .subject-line h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .subject-line h3:hover {
+            color: var(--primary);
+        }
+
+        .sender-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.critical { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge.important { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge.normal { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge.action-req { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .badge.no-action { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        .card-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            margin-top: auto;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-done {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-done:hover {
+            background: var(--success);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-read {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-read:hover {
+            background: var(--normal);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-snooze {
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-snooze:hover {
+            background: rgba(148, 163, 184, 0.25);
+            color: var(--text-main);
+        }
+
+        .acknowledged-text {
+            color: var(--success);
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Modal Box Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #121824;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            max-width: 750px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalFadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+
+        .modal-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h4 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .modal-section p {
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .modal-section pre {
+            background: rgba(15, 17, 26, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            max-height: 200px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .no-emails {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .no-emails h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .no-emails p {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header -->
+        <header>
+            <div class="logo-section">
+                <h1>College Mail Guardian</h1>
+                <p>Intelligent, automated email notifications sent to your WhatsApp</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <form action="/api/check-emails" method="post" style="margin: 0;">
+                    <button type="submit" class="btn btn-add" style="padding: 8px 16px; font-size: 0.85rem; margin: 0;">Check Mails Now</button>
+                </form>
+                <div class="refresh-badge" id="refreshBadge">
+                    Refreshes in 30s
+                </div>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    System Active
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Dashboard -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total Mails</div>
+                <div class="stat-value">{{ stats.total }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Critical Priority</div>
+                <div class="stat-value" style="color: var(--critical);">{{ stats.critical }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Action Items</div>
+                <div class="stat-value" style="color: var(--primary);">{{ stats.action_required }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Active Reminders</div>
+                <div class="stat-value" style="color: var(--important);">{{ stats.active_reminders }}</div>
+            </div>
+        </section>
+
+        <!-- Search & Filtering Toolbar -->
+        <section class="toolbar">
+            <div class="filters">
+                <button class="filter-btn {{ 'active' if filter == None }}" onclick="window.location.href='/'">All</button>
+                <button class="filter-btn {{ 'active' if filter == 'CRITICAL' }}" onclick="window.location.href='/?filter=CRITICAL'">Critical</button>
+                <button class="filter-btn {{ 'active' if filter == 'IMPORTANT' }}" onclick="window.location.href='/?filter=IMPORTANT'">Important</button>
+                <button class="filter-btn {{ 'active' if filter == 'NORMAL' }}" onclick="window.location.href='/?filter=NORMAL'">Normal</button>
+            </div>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search sender or subject...">
+            </div>
+        </section>
+
+        <!-- Main Email List Layout -->
+        <div class="main-layout">
+            <main class="email-grid">
+                {% if not emails %}
+                <div class="no-emails">
+                    <h3>No College Mails Found</h3>
+                    <p>We haven't received or categorized any emails matching your filters yet.</p>
+                </div>
+                {% endif %}
+
+                {% for email in emails %}
+                <div class="email-card" 
+                     data-subject="{{ email.subject }}" 
+                     data-sender="{{ email.sender }}"
+                     id="email-{{ email.id }}">
+                    <div class="priority-indicator {{ email.priority|lower }}"></div>
+                    
+                    <div class="card-header">
+                        <div>
+                            <div class="badges">
+                                <span class="badge {{ email.priority|lower }}">{{ email.priority }}</span>
+                                {% if email.action_required %}
+                                <span class="badge action-req">Action Required</span>
+                                {% else %}
+                                <span class="badge no-action">No Action</span>
+                                {% endif %}
+                                
+                                {% if email.deadline_text %}
+                                <span class="badge important" style="text-transform: none;">Deadline: {{ email.deadline_text }}</span>
+                                {% endif %}
+                            </div>
+                            <h3 style="margin-top: 10px; cursor: pointer;" onclick="openDetailsModal(
+                                '{{ email.subject|escape }}',
+                                '{{ email.sender|escape }}',
+                                '{{ email.priority }}',
+                                '{{ email.summary|escape }}',
+                                '{{ email.deadline_text|escape if email.deadline_text else 'None' }}',
+                                '{{ 'Yes' if email.action_required else 'No' }}',
+                                '{{ email.body_snippet|escape }}'
+                            )">{{ email.subject }}</h3>
+                            <div class="sender-info">From: {{ email.sender }}</div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        {{ email.summary }}
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="timestamp">
+                            Received on: {{ email.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </div>
+                        
+                        {% if not email.is_acknowledged %}
+                        <div class="actions">
+                            <form action="/api/acknowledge/{{ email.id }}" method="post" style="display:inline;">
+                                <input type="hidden" name="action" value="done">
+                                <button type="submit" class="btn btn-done">Done</button>
+                            </form>
+                            <form action="/api/acknowledge/{{ email.id }}" method="post" style="display:inline;">
+                                <input type="hidden" name="action" value="read">
+                                <button type="submit" class="btn btn-read">Mark Read</button>
+                            </form>
+                            <form action="/api/acknowledge/{{ email.id }}" method="post" style="display:inline;">
+                                <input type="hidden" name="action" value="snooze">
+                                <button type="submit" class="btn btn-snooze">Snooze (6h)</button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <span class="acknowledged-text">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Acknowledged
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </main>
+
+            <!-- Monitored Senders Sidebar -->
+            <aside class="sidebar-section">
+                <div class="sidebar-card">
+                    <h3>Monitored Senders</h3>
+                    <p class="sidebar-desc">Only emails from these specific sender addresses or matching domains will be processed and alerted on WhatsApp.</p>
+                    
+                    <form action="/api/whitelist/add" method="post" class="add-sender-form">
+                        <input type="text" name="email_or_domain" placeholder="Email or domain (e.g. placement@college.edu)" required>
+                        <button type="submit" class="btn btn-add">Add</button>
+                    </form>
+                    
+                    <div class="whitelist-list">
+                        {% if not whitelisted_senders %}
+                        <div class="no-senders">All senders allowed (No whitelist active)</div>
+                        {% endif %}
+                        {% for sender in whitelisted_senders %}
+                        <div class="whitelist-item">
+                            <span class="whitelist-val" title="{{ sender.email_or_domain }}">{{ sender.email_or_domain }}</span>
+                            <form action="/api/whitelist/delete/{{ sender.id }}" method="post" style="display:inline;">
+                                <button type="submit" class="delete-icon" title="Remove">✕</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+    <!-- Interactive Details Modal -->
+    <div id="emailModal" class="modal" onclick="closeModalOnOuterClick(event)">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeDetailsModal()">&times;</span>
+            <div class="modal-header">
+                <div class="modal-meta-row">
+                    <span id="modalPriority" class="badge">Priority</span>
+                    <span id="modalActionReq" class="badge">Action</span>
+                    <span id="modalDeadline" class="badge">Deadline</span>
+                </div>
+                <h2 id="modalSubject">Email Subject Line Placeholder</h2>
+                <div id="modalSender" class="sender-info" style="margin-top: 10px; font-size: 0.95rem;">From: sender@domain.com</div>
+            </div>
+
+            <div class="modal-section">
+                <h4>AI Summary</h4>
+                <p id="modalSummary">AI summary goes here...</p>
+            </div>
+
+            <div class="modal-section">
+                <h4>Original Content Snippet</h4>
+                <pre id="modalBody">Original email body content snippet...</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-side Searching and Modal Script -->
+    <script>
+        // Live client-side search filtering
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.email-card');
+            
+            cards.forEach(card => {
+                const subject = card.getAttribute('data-subject').toLowerCase();
+                const sender = card.getAttribute('data-sender').toLowerCase();
+                
+                if (subject.includes(query) || sender.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Details Modal Operations
+        const modal = document.getElementById('emailModal');
+
+        function openDetailsModal(subject, sender, priority, summary, deadline, actionRequired, body) {
+            document.getElementById('modalSubject').innerText = subject;
+            document.getElementById('modalSender').innerText = 'From: ' + sender;
+            document.getElementById('modalSummary').innerText = summary;
+            
+            const rawBody = body.replace(/\\n/g, '\n').replace(/\\r/g, '');
+            document.getElementById('modalBody').innerText = rawBody;
+            
+            // Setup Badges in Modal
+            const priorityBadge = document.getElementById('modalPriority');
+            priorityBadge.innerText = priority;
+            priorityBadge.className = 'badge ' + priority.toLowerCase();
+            
+            const actionBadge = document.getElementById('modalActionReq');
+            if (actionRequired === 'Yes') {
+                actionBadge.innerText = 'Action Required';
+                actionBadge.className = 'badge action-req';
+            } else {
+                actionBadge.innerText = 'No Action Required';
+                actionBadge.className = 'badge no-action';
+            }
+            
+            const deadlineBadge = document.getElementById('modalDeadline');
+            if (deadline && deadline !== 'None') {
+                deadlineBadge.innerText = 'Deadline: ' + deadline;
+                deadlineBadge.className = 'badge important';
+                deadlineBadge.style.display = 'inline-block';
+            } else {
+                deadlineBadge.style.display = 'none';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeDetailsModal() {
+            modal.style.display = 'none';
+        }
+
+        function closeModalOnOuterClick(event) {
+            if (event.target === modal) {
+                closeDetailsModal();
+            }
+        }
+
+        // Auto-refresh countdown logic (every 30 seconds)
+        let countdown = 30;
+        const refreshBadge = document.getElementById('refreshBadge');
+        
+        setInterval(() => {
+            const searchInput = document.getElementById('searchInput');
+            const modal = document.getElementById('emailModal');
+            const isTyping = document.activeElement === searchInput || searchInput.value.trim() !== '';
+            const isModalOpen = modal && modal.style.display === 'flex';
+            
+            if (isTyping || isModalOpen) {
+                refreshBadge.innerText = 'Refresh paused';
+                countdown = 30; // reset countdown
+                return;
+            }
+            
+            countdown--;
+            if (countdown <= 0) {
+                refreshBadge.innerText = 'Refreshing...';
+                window.location.reload();
+            } else {
+                refreshBadge.innerText = `Refreshes in ${countdown}s`;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

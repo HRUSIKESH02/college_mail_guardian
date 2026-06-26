@@ -1,0 +1,14 @@
+fastapi==0.138.1
+uvicorn==0.49.0
+jinja2==3.1.2
+python-multipart==0.0.6
+sqlalchemy==2.0.51
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.4.0
+google-api-python-client==2.198.0
+google-genai==2.10.0
+twilio==9.10.9
+apscheduler==3.10.4
+python-dotenv==1.0.0
+pydantic-settings==2.1.0
+psycopg2-binary==2.9.9
