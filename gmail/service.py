@@ -6,6 +6,25 @@ from googleapiclient.errors import HttpError
 from app.config import settings
 import base64
 import email
+from email.header import decode_header
+
+def decode_mime_header(header_value):
+    if not header_value:
+        return ""
+    try:
+        decoded_parts = decode_header(header_value)
+        header_text = []
+        for part, encoding in decoded_parts:
+            if isinstance(part, bytes):
+                try:
+                    header_text.append(part.decode(encoding or 'utf-8', errors='replace'))
+                except Exception:
+                    header_text.append(part.decode('utf-8', errors='replace'))
+            else:
+                header_text.append(str(part))
+        return "".join(header_text)
+    except Exception:
+        return header_value
 
 def get_gmail_service():
     creds = Credentials(
@@ -30,8 +49,8 @@ def fetch_unread_emails():
             msg_data = service.users().messages().get(userId="me", id=msg["id"], format="raw").execute()
             mime_msg = email.message_from_bytes(base64.urlsafe_b64decode(msg_data["raw"]))
             
-            sender = mime_msg["From"]
-            subject = mime_msg["Subject"]
+            sender = decode_mime_header(mime_msg["From"])
+            subject = decode_mime_header(mime_msg["Subject"])
             body = ""
             if mime_msg.is_multipart():
                 for part in mime_msg.walk():

@@ -32,12 +32,18 @@ def dashboard(request: Request, filter: str = None, db: Session = Depends(get_db
     }
     
     whitelisted_senders = db.query(WhitelistedSender).order_by(WhitelistedSender.created_at.desc()).all()
-    
+    def format_to_ist(dt):
+        if not dt:
+            return ""
+        # Add 5 hours and 30 minutes to UTC datetime to convert to IST
+        ist_dt = dt + timedelta(hours=5, minutes=30)
+        return ist_dt.strftime('%Y-%m-%d %I:%M:%S %p')
+
     template_path = os.path.join(os.path.dirname(__file__), "templates/index.html")
     with open(template_path, "r", encoding="utf-8") as f:
         template = Template(f.read())
     
-    return template.render(emails=emails, filter=filter, stats=stats, whitelisted_senders=whitelisted_senders)
+    return template.render(emails=emails, filter=filter, stats=stats, whitelisted_senders=whitelisted_senders, format_time=format_to_ist)
 
 @router.post("/api/acknowledge/{email_id}")
 def acknowledge_email(email_id: int, action: str = Form(...), db: Session = Depends(get_db)):

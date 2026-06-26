@@ -750,10 +750,9 @@
                     <div class="card-body">
                         {{ email.summary }}
                     </div>
-
                     <div class="card-footer">
                         <div class="timestamp">
-                            Received on: {{ email.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                            Received on: {{ format_time(email.created_at) }}
                         </div>
                         
                         {% if not email.is_acknowledged %}
