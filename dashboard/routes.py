@@ -9,6 +9,10 @@ import os
 
 router = APIRouter()
 
+@router.head("/")
+def head_dashboard():
+    return HTMLResponse(content="", status_code=200)
+
 @router.get("/", response_class=HTMLResponse)
 def dashboard(request: Request, filter: str = None, db: Session = Depends(get_db)):
     query = db.query(Email).order_by(Email.created_at.desc())
